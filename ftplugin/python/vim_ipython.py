@@ -93,7 +93,7 @@ def new_ipy(s=''):
         new_ipy()
 
     """
-    from ipykernel import KernelManager
+    from jupyter_client.manager import KernelManager
     km = KernelManager()
     km.start_kernel()
     return km_from_string(km.connection_file)
@@ -104,15 +104,13 @@ def km_from_string(s=''):
     or just 'kernel-12345.json' for IPython 0.12
     """
     try:
-        import IPython
+        import jupyter_client
     except ImportError:
-        raise ImportError("Could not find IPython. " + _install_instructions)
+        raise ImportError("Could not find jupyter_client. " + _install_instructions)
     from traitlets.config.loader import KeyValueConfigLoader
     try:
-        from ipykernel import (
-            KernelManager,
-            find_connection_file,
-        )
+        from jupyter_client import find_connection_file
+        from jupyter_client.manager import KernelManager
     except ImportError:
         #  IPython < 1.0
         from IPython.zmq.blockingkernelmanager import BlockingKernelManager as KernelManager
@@ -178,23 +176,6 @@ def km_from_string(s=''):
     except AttributeError:
         # < 3.0
         send = kc.shell_channel.execute
-
-    #XXX: backwards compatibility for IPython < 0.13
-    try:
-        import inspect
-        sc = kc.shell_channel
-        num_oinfo_args = len(inspect.getargspec(sc.object_info).args)
-        if num_oinfo_args == 2:
-            # patch the object_info method which used to only take one argument
-            klass = sc.__class__
-            klass._oinfo_orig = klass.object_info
-            klass.object_info = lambda s,x,y: s._oinfo_orig(x)
-    except:
-        pass
-
-    #XXX: backwards compatibility for IPython < 1.0
-    if not hasattr(kc, 'iopub_channel'):
-        kc.iopub_channel = kc.sub_channel
 
     # now that we're connect to an ipython kernel, activate completion
     # machinery, but do so only for the local buffer if the user added the
