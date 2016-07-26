@@ -18,7 +18,7 @@
 "
 " written by Paul Ivanov (http://pirsquared.org)
 "
-if !has('python')
+if !has('python3')
     " exit if python is not available.
     " XXX: raise an error message here
     finish
