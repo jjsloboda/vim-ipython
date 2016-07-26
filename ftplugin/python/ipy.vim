@@ -41,7 +41,7 @@ if !exists('g:ipy_completefunc')
     let g:ipy_completefunc = 'global'
 endif
 
-python << EOF
+py3 << EOF
 import vim
 import sys
 vim_ipython_path = vim.eval("expand('<sfile>:h')")
